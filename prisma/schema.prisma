@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Responsavel{
+
+  id Int @id @default(autoincrement())
+  email String @db.VarChar(256) @unique
+  nome String @db.VarChar(50)
+  rg String @db.VarChar(20) @unique
+  cpf String @db.VarChar(20) @unique
+  telefone String @db.VarChar(20)
+  data_nascimento DateTime @db.Date
+  senha String
+  foto String
+  responsavel_endereco Responsavel_Endereco[]
+  comentario Comentario[]
+  avaliacao_responsavel_motorista Avaliacao_Responsavel_Motorista[]
+  contrato Contrato[]
+
+  @@map("tbl_responsavel")
+}
+
+model Comentario{
+  id Int @id @default(autoincrement())
+  comentario String @db.Text
+  data_postagem DateTime
+  id_responsavel Int
+  responsavel Responsavel @relation(fields: [id_responsavel], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  id_motorista Int
+  motorista Motorista @relation(fields: [id_motorista], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("tbl_comentario")
+}
+
+model Avaliacao{
+  id Int @id @default(autoincrement())
+  avaliacao Int
+  avaliacao_responsavel_motorista Avaliacao_Responsavel_Motorista[]
+
+  @@map("tbl_avaliacao")
+}
+
+model Avaliacao_Responsavel_Motorista{
+  id Int @id @default(autoincrement())
+  id_avalicao Int
+  avaliacao Avaliacao @relation(fields: [id_avalicao], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  id_responsavel Int
+  responsavel Responsavel @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id_motorista Int
+  motorista Motorista @relation(fields: [id_motorista], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  @@map("tbl_avaliacao_responsavel_motorista")
+}
+
+model Motorista{
+  id Int @id @default(autoincrement())
+  email String @db.VarChar(256) @unique
+  nome String @db.VarChar(50)
+  rg String @db.VarChar(20) @unique
+  cpf String @db.VarChar(20) @unique
+  telefone String @db.VarChar(20)
+  data_nascimento DateTime @db.Date
+  senha String
+  foto String
+  data_inicio_carreira DateTime @db.Date
+  avaliacao Float
+  descricao String @db.Text
+  id_van Int
+  van Van @relation(fields: [id_van], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id_endereco Int
+  endereco Endereco @relation(fields: [id_endereco], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  comentario Comentario[]
+  avaliacao_responsavel_motorista Avaliacao_Responsavel_Motorista[]
+  motorista_escola Motorista_Escola[]
+  contrato Contrato[]
+
+  @@map("tbl_motorista")
+}
+
+model Van{
+  id Int @id @default(autoincrement())
+  placa String @db.VarChar(20) @unique
+  quantidade_vagas Int
+  foto String @db.Text
+  descricao String @db.Text
+  id_modelo Int
+  modelo Modelo @relation(fields: [id_modelo], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  motorista Motorista[]
+  @@map("tbl_van")
+}
+
+model Modelo{
+  id Int @id @default(autoincrement())
+  modelo String @db.VarChar(60)
+  van Van[]
+  @@map("tbl_modelo")
+}
+
+model Endereco{
+  id Int @id @default(autoincrement())
+  cep String @db.VarChar(20) @unique
+  numero String @db.VarChar(20)
+  bairro String @db.VarChar(200)
+  logradouro String @db.VarChar(200)
+  id_estado Int
+  estado Estado @relation(fields: [id_estado], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  motorista Motorista[]
+  responsavel_endereco Responsavel_Endereco[]
+  escola Escola[]
+  @@map("tbl_endereco")
+}
+
+model Estado{
+  id Int @id @default(autoincrement())
+  estado String @db.VarChar(150)
+  id_cidade Int
+  cidade Cidade @relation(fields: [id_cidade], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  endereco Endereco[]
+  @@map("tbl_estado")
+}
+
+model Cidade{
+  id Int @id @default(autoincrement())
+  cidade String @db.VarChar(150)
+  estado Estado[]
+  @@map("tbl_cidade")
+}
+
+model Responsavel_Endereco{
+  id Int @id @default(autoincrement())
+  id_responsavel Int
+  responsavel Responsavel @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id_endereco Int
+  endereco Endereco @relation(fields: [id_endereco], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  @@map("tbl_responsavel_endereco")
+}
+
+model Motorista_Escola{
+  id Int @id @default(autoincrement())
+  id_escola Int
+  escola Escola @relation(fields: [id_escola], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  id_motorista Int
+  motorista Motorista @relation(fields: [id_motorista], references: [id], onDelete: Cascade,onUpdate: Cascade)
+
+  @@map("tbl_motorista_escola")
+}
+
+model Escola{
+  id Int @id @default(autoincrement())
+  escola String @db.VarChar(100)
+  id_endereco Int
+  endereco Endereco @relation(fields: [id_endereco], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  motorista_escola Motorista_Escola[]
+  contrato Contrato[]
+
+  @@map("tbl_escola")
+}
+
+model Contrato{
+  id Int @id @default(autoincrement())
+  nome_passageiro String @db.VarChar(150)
+  idade_passageiro Int
+  id_motorista Int
+  motorista Motorista @relation(fields: [id_motorista], references: [id], onUpdate: Cascade,onDelete: Cascade)
+  id_responsavel Int
+  responsavel Responsavel @relation(fields: [id_responsavel], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id_preco Int
+  preco Preco @relation(fields: [id_preco], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id_escola Int
+  escola Escola @relation(fields: [id_escola], references: [id], onDelete: Cascade,onUpdate: Cascade)
+  id_tipo_contrato Int
+  tipo_contrato Tipo_Contrato @relation(fields: [id_tipo_contrato], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("tbl_contrato")
+}
+
+model Preco{
+  id Int @id @default(autoincrement())
+  preco Int
+  contrato Contrato[]
+  @@map("tbl_preco")
+}
+
+model Tipo_Contrato{
+  id Int @id @default(autoincrement())
+  tipo_contrato String @db.VarChar(100)
+  contrato Contrato[]
+
+  @@map("tbl_tipo_contrato")
+}
