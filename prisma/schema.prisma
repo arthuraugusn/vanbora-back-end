@@ -96,7 +96,7 @@ model Van{
 
 model Modelo{
   id Int @id @default(autoincrement())
-  modelo String @db.VarChar(60)
+  modelo String @db.VarChar(60) @unique
   van Van[]
   @@map("tbl_modelo")
 }
